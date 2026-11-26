@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#05030d" />
+<meta name="description" content="一棵为你点亮的圣诞树" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="format-detection" content="telephone=no" />
+<title>Merry Christmas · 为你种一棵星光</title>
+<style>
+  :root{
+    --gold: #f6d39c;
+    --rose: #ffb3cc;
+    --cream: #fff3e2;
+    --serif: "Cormorant Garamond", "Didot", "Bodoni 72", "Playfair Display", Georgia, "Times New Roman", "Songti SC", serif;
+    --cn-serif: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+    background: #05030d;
+  }
+
+  body{
+    font-family: var(--cn-serif);
+    color: #fff;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  #scene{
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    touch-action: none;
+  }
+
+  .vignette{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background:
+      radial-gradient(ellipse 75% 60% at 50% 56%, transparent 32%, rgba(2,1,8,.24) 68%, rgba(2,1,8,.70) 100%),
+      linear-gradient(180deg, rgba(3,1,10,.50) 0%, transparent 19%, transparent 68%, rgba(3,1,10,.58) 100%);
+  }
+
+  .hero{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    padding: calc(env(safe-area-inset-top, 0px) + 22px) 22px 0;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .hero > *{
+    opacity: 0;
+    animation: rise 1.4s cubic-bezier(.2,.72,.2,1) forwards;
+  }
+
+  .eyebrow{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(9px, 3vw, 16px);
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 9.5px;
+    font-weight: 400;
+    letter-spacing: .38em;
+    color: rgba(255, 228, 193, .66);
+    animation-delay: .2s;
+  }
+
+  .eyebrow-text{ padding-left: .38em; }
+
+  .rule{
+    width: clamp(16px, 5.5vw, 36px);
+    height: 1px;
+    background: linear-gradient(90deg, rgba(246,211,156,0), rgba(246,211,156,.62));
+    flex: none;
+  }
+  .rule.flip{ transform: scaleX(-1); }
+
+  .title-wrap{
+    margin: clamp(8px, 1.8vh, 16px) 0 0;
+    padding: 0;
+    font-weight: 400;
+    animation-delay: .42s;
+  }
+
+  .title{
+    display: inline-block;
+    margin: 0;
+    padding: .06em .12em .1em;
+    font-family: var(--serif);
+    font-size: clamp(34px, 9vw, 58px);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.04;
+    letter-spacing: .005em;
+    color: #ffe7c7;
+    filter: drop-shadow(0 6px 28px rgba(255, 143, 173, .26));
+  }
+
+  @supports ((-webkit-background-clip: text) or (background-clip: text)){
+    .title{
+      background-image: linear-gradient(100deg, #fff9ee 0%, #ffe4b8 25%, #ffc3d3 50%, #f5d7a7 72%, #fff8e9 100%);
+      background-size: 220% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: shimmer 8s ease-in-out infinite;
+    }
+  }
+
+  .sub{
+    margin: clamp(7px, 1.5vh, 12px) 0 0;
+    font-family: var(--cn-serif);
+    font-size: clamp(10px, 2.9vw, 13px);
+    font-weight: 400;
+    letter-spacing: .30em;
+    text-indent: .30em;
+    color: rgba(255, 232, 212, .55);
+    animation-delay: .9s;
+  }
+
+  .wish{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    padding: 0 26px calc(env(safe-area-inset-bottom, 0px) + 26px);
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    animation: rise 1.4s cubic-bezier(.2,.72,.2,1) 1.25s forwards;
+  }
+
+  .wish-main{
+    margin: 0;
+    font-family: var(--cn-serif);
+    font-size: clamp(13px, 3.7vw, 16px);
+    font-weight: 400;
+    line-height: 1.9;
+    letter-spacing: .10em;
+    color: rgba(255, 242, 235, .88);
+    text-shadow: 0 2px 18px rgba(0,0,0,.65), 0 0 32px rgba(255, 116, 166, .22);
+  }
+
+  .hint{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 16px;
+    margin: 11px 0 0;
+    font-family: var(--cn-serif);
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-indent: .18em;
+    color: rgba(246, 211, 156, .68);
+  }
+
+  .dot{
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #ffd9a8;
+    box-shadow: 0 0 10px #ffb3cc, 0 0 22px rgba(255, 150, 190, .6);
+    animation: breathe 2.6s ease-in-out infinite;
+    flex: none;
+  }
+
+  .sound{
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 13px);
+    right: 14px;
+    z-index: 5;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(246, 211, 156, .22);
+    background: rgba(255, 255, 255, .025);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: rgba(255, 231, 201, .62);
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    animation: fadeIn 1s 1.7s forwards;
+    transition: border-color .3s ease, color .3s ease, background .3s ease;
+  }
+
+  .sound:active{ transform: scale(.94); }
+
+  .sound.is-muted{
+    color: rgba(255, 231, 201, .28);
+    border-color: rgba(246, 211, 156, .12);
+  }
+
+  .sound::after{
+    content: "";
+    position: absolute;
+    width: 21px;
+    height: 1px;
+    background: rgba(255, 220, 190, .75);
+    box-shadow: 0 0 6px rgba(255, 200, 170, .5);
+    transform: rotate(-45deg) scaleX(0);
+    transition: transform .35s ease;
+  }
+
+  .sound.is-muted::after{ transform: rotate(-45deg) scaleX(1); }
+
+  @keyframes rise{
+    from{ opacity: 0; transform: translateY(15px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn{
+    to{ opacity: .78; }
+  }
+
+  @keyframes shimmer{
+    0%, 100%{ background-position: 0% 50%; }
+    50%{ background-position: 100% 50%; }
+  }
+
+  @keyframes breathe{
+    0%, 100%{ opacity: .35; transform: scale(.8); }
+    50%{ opacity: 1; transform: scale(1.15); }
+  }
+
+  .noscript{
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    padding: 30px;
+    background: #05030d;
+    color: rgba(255, 238, 220, .82);
+    font-family: var(--cn-serif);
+    font-size: 14px;
+    line-height: 2.1;
+    letter-spacing: .18em;
+    text-align: center;
+  }
+
+  @media (max-height: 700px){
+    .hero{ padding-top: calc(env(safe-area-inset-top, 0px) + 15px); }
+    .title{ font-size: clamp(31px, 8.6vw, 46px); }
+    .sub{ margin-top: 6px; }
+    .wish{ padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); }
+    .wish-main{ font-size: 13px; }
+    .hint{ margin-top: 8px; }
+  }
+
+  @media (orientation: landscape) and (max-height: 620px){
+    .hero{
+      right: auto;
+      width: 45%;
+      padding: calc(env(safe-area-inset-top, 0px) + 4.5vh) 0 0 5.5vw;
+      text-align: left;
+    }
+    .eyebrow{ justify-content: flex-start; gap: 9px; font-size: 8.5px; letter-spacing: .30em; }
+    .eyebrow-text{ padding-left: .30em; }
+    .rule{ width: 16px; }
+    .title-wrap{ margin-top: 1.6vh; }
+    .title{ font-size: clamp(25px, 4.4vw, 44px); padding-left: 0; }
+    .sub{ margin-top: 1vh; font-size: 10px; letter-spacing: .24em; text-indent: .24em; }
+
+    .wish{
+      right: auto;
+      width: 45%;
+      padding: 0 0 calc(env(safe-area-inset-bottom, 0px) + 4vh) 5.5vw;
+      text-align: left;
+    }
+    .wish-main{ font-size: clamp(11px, 1.75vw, 14px); letter-spacing: .08em; }
+    .hint{ justify-content: flex-start; margin-top: 6px; font-size: 9px; letter-spacing: .16em; }
+
+    .sound{
+      top: calc(env(safe-area-inset-top, 0px) + 9px);
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      font-size: 13px;
+    }
+
+    .vignette{
+      background:
+        radial-gradient(ellipse 60% 70% at 67% 52%, transparent 32%, rgba(2,1,8,.24) 68%, rgba(2,1,8,.70) 100%),
+        linear-gradient(180deg, rgba(3,1,10,.50) 0%, transparent 19%, transparent 68%, rgba(3,1,10,.58) 100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .title, .dot{ animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+
+<header class="hero">
+  <p class="eyebrow">
+    <span class="rule"></span>
+    <span class="eyebrow-text">CHRISTMAS · 2026</span>
+    <span class="rule flip"></span>
+  </p>
+  <h1 class="title-wrap"><span class="title">Merry Christmas</span></h1>
+  <p class="sub">献给这个冬天最温柔的你</p>
+</header>
+
+<footer class="wish">
+  <p class="wish-main">想把这棵树上所有的星光，都送给你</p>
+  <p class="hint" id="hint">
+    <span class="dot"></span>
+    <span id="hintText">轻触屏幕 · 许一个愿</span>
+  </p>
+</footer>
+
+<button id="sound" class="sound" type="button" aria-label="关闭声音" aria-pressed="true">♪</button>
+
+<script>
+(() => {
+  'use strict';
+
+  // ─────────────────────────────────────────────────────────────
+  //  想换文案，直接改上方 HTML 里的句子即可。
+  // ─────────────────────────────────────────────────────────────
+
+  const canvas = document.getElementById('scene');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const hintText = document.getElementById('hintText');
+  const soundBtn = document.getElementById('sound');
+
+  const TAU = Math.PI * 2;
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+
+  let W = 0;
+  let H = 0;
+  let DPR = 1;
+  let bgCanvas = null;
+  let elapsed = 0;
+  let flash = 0;
+  let soundOn = true;
+  let isFirstTap = true;
+  let meteor = null;
+  let meteorNext = 5.5;
+
+  const tree = { cx: 0, baseY: 0, height: 0, radius: 0, rot: 0 };
+
+  let needles = [];
+  let garlands = [];
+  let ornaments = [];
+  let heartOrnaments = [];
+  let treeSparkles = [];
+  let stars = [];
+  let snow = [];
+  let bokeh = [];
+  let ambientHearts = [];
+  let burstHearts = [];
+  let sparks = [];
+  let ripples = [];
+
+  // ── 颜色：由树根到树梢，玫红 → 蜜桃 → 鎏金 → 冰白 ──────────
+  const STOPS = [
+    [0.00, [255, 36, 96]],
+    [0.14, [255, 66, 130]],
+    [0.30, [255, 108, 160]],
+    [0.44, [255, 150, 178]],
+    [0.56, [255, 186, 150]],
+    [0.68, [255, 208, 132]],
+    [0.80, [255, 226, 168]],
+    [0.90, [255, 242, 208]],
+    [1.00, [214, 243, 255]]
+  ];
+
+  function colorAt(t) {
+    t = clamp(t, 0, 1);
+    for (let i = 1; i < STOPS.length; i++) {
+      if (t <= STOPS[i][0]) {
+        const [t0, c0] = STOPS[i - 1];
+        const [t1, c1] = STOPS[i];
+        const k = (t - t0) / (t1 - t0);
+        return [
+          Math.round(lerp(c0[0], c1[0], k)),
+          Math.round(lerp(c0[1], c1[1], k)),
+          Math.round(lerp(c0[2], c1[2], k))
+        ];
+      }
+    }
+    return STOPS[STOPS.length - 1][1];
+  }
+
+  function makeGlow(rgb, size) {
+    size = size || 64;
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const g = c.getContext('2d');
+    const h = size / 2;
+    const grad = g.createRadialGradient(h, h, 0, h, h, h);
+    const r = rgb[0], gg = rgb[1], b = rgb[2];
+    const lr = Math.min(255, r + 80);
+    const lg = Math.min(255, gg + 80);
+    const lb = Math.min(255, b + 80);
+    grad.addColorStop(0, 'rgba(255,255,255,0.94)');
+    grad.addColorStop(0.11, `rgba(${lr},${lg},${lb},0.86)`);
+    grad.addColorStop(0.32, `rgba(${r},${gg},${b},0.52)`);
+    grad.addColorStop(0.62, `rgba(${r},${gg},${b},0.15)`);
+    grad.addColorStop(1, `rgba(${r},${gg},${b},0)`);
+    g.fillStyle = grad;
+    g.fillRect(0, 0, size, size);
+    return c;
+  }
+
+  // 树上的小光点：更集中的色彩，避免叠加后变成一片纯白
+  function makeParticleGlow(rgb, size) {
+    size = size || 64;
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const g = c.getContext('2d');
+    const h = size / 2;
+    const grad = g.createRadialGradient(h, h, 0, h, h, h);
+    const r = rgb[0], gg = rgb[1], b = rgb[2];
+    const lr = Math.min(255, r + 55);
+    const lg = Math.min(255, gg + 55);
+    const lb = Math.min(255, b + 55);
+    grad.addColorStop(0, 'rgba(255,255,255,0.92)');
+    grad.addColorStop(0.07, `rgba(${lr},${lg},${lb},0.78)`);
+    grad.addColorStop(0.24, `rgba(${r},${gg},${b},0.68)`);
+    grad.addColorStop(0.52, `rgba(${r},${gg},${b},0.24)`);
+    grad.addColorStop(0.82, `rgba(${r},${gg},${b},0.05)`);
+    grad.addColorStop(1, `rgba(${r},${gg},${b},0)`);
+    g.fillStyle = grad;
+    g.fillRect(0, 0, size, size);
+    return c;
+  }
+
+  const paletteSprites = [];
+  for (let i = 0; i < 28; i++) {
+    paletteSprites.push(makeParticleGlow(colorAt(i / 27)));
+  }
+
+  const glow = {
+    white: makeGlow([255, 247, 232], 128),
+    gold: makeGlow([255, 208, 136], 128),
+    pink: makeGlow([255, 112, 164], 128),
+    rose: makeGlow([255, 66, 118], 128),
+    ice: makeGlow([168, 232, 255], 128)
+  };
+
+  function makeHeart() {
+    const s = 128;
+    const c = document.createElement('canvas');
+    c.width = c.height = s;
+    const g = c.getContext('2d');
+    g.translate(s / 2, s / 2);
+    const grad = g.createLinearGradient(-40, -50, 30, 55);
+    grad.addColorStop(0, '#fff0f5');
+    grad.addColorStop(0.34, '#ffaccb');
+    grad.addColorStop(1, '#ff5b93');
+    g.fillStyle = grad;
+    g.shadowColor = 'rgba(255, 90, 150, 0.85)';
+    g.shadowBlur = 16;
+    g.beginPath();
+    g.moveTo(0, 44);
+    g.bezierCurveTo(-54, 6, -56, -34, -28, -46);
+    g.bezierCurveTo(-12, -53, -2, -43, 0, -30);
+    g.bezierCurveTo(2, -43, 12, -53, 28, -46);
+    g.bezierCurveTo(56, -34, 54, 6, 0, 44);
+    g.closePath();
+    g.fill();
+    g.shadowBlur = 0;
+    g.globalAlpha = 0.55;
+    g.fillStyle = 'rgba(255,255,255,0.75)';
+    g.beginPath();
+    g.ellipse(-20, -27, 8, 12, -0.6, 0, TAU);
+    g.fill();
+    return c;
+  }
+
+  function makeSparkle() {
+    const s = 128;
+    const c = document.createElement('canvas');
+    c.width = c.height = s;
+    const g = c.getContext('2d');
+    g.translate(s / 2, s / 2);
+
+    const halo = g.createRadialGradient(0, 0, 0, 0, 0, 58);
+    halo.addColorStop(0, 'rgba(255,250,240,0.75)');
+    halo.addColorStop(0.25, 'rgba(255,224,196,0.18)');
+    halo.addColorStop(1, 'rgba(255,200,200,0)');
+    g.fillStyle = halo;
+    g.beginPath();
+    g.arc(0, 0, 58, 0, TAU);
+    g.fill();
+
+    function ray(len, w, alpha, angle) {
+      g.save();
+      g.rotate(angle);
+      const lg = g.createLinearGradient(-len, 0, len, 0);
+      lg.addColorStop(0, 'rgba(255,235,210,0)');
+      lg.addColorStop(0.5, `rgba(255,255,250,${alpha})`);
+      lg.addColorStop(1, 'rgba(255,235,210,0)');
+      g.fillStyle = lg;
+      g.beginPath();
+      g.moveTo(-len, 0);
+      g.quadraticCurveTo(0, -w, len, 0);
+      g.quadraticCurveTo(0, w, -len, 0);
+      g.fill();
+      g.restore();
+    }
+
+    ray(60, 4.6, 0.95, 0);
+    ray(60, 4.6, 0.80, Math.PI / 2);
+    ray(27, 2.4, 0.50, Math.PI / 4);
+    ray(27, 2.4, 0.50, -Math.PI / 4);
+    return c;
+  }
+
+  function makeCrescent() {
+    const s = 128;
+    const c = document.createElement('canvas');
+    c.width = c.height = s;
+    const g = c.getContext('2d');
+    g.translate(s / 2, s / 2);
+    g.fillStyle = '#fff4da';
+    g.shadowColor = 'rgba(255, 224, 170, 0.95)';
+    g.shadowBlur = 20;
+    g.beginPath();
+    g.arc(-4, 0, 30, 0, TAU);
+    g.fill();
+    g.shadowBlur = 0;
+    g.globalCompositeOperation = 'destination-out';
+    g.beginPath();
+    g.arc(12, -7, 27, 0, TAU);
+    g.fill();
+    return c;
+  }
+
+  function makeAurora(rgb) {
+    const s = 512;
+    const c = document.createElement('canvas');
+    c.width = c.height = s;
+    const g = c.getContext('2d');
+    const grd = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s * 0.5);
+    grd.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.55)`);
+    grd.addColorStop(0.42, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.18)`);
+    grd.addColorStop(1, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);
+    g.fillStyle = grd;
+    g.fillRect(0, 0, s, s);
+    return c;
+  }
+
+  const heartSprite = makeHeart();
+  const sparkleSprite = makeSparkle();
+  const crescentSprite = makeCrescent();
+  const auroraRose = makeAurora([255, 88, 145]);
+  const auroraTeal = makeAurora([60, 220, 210]);
+  const auroraViolet = makeAurora([130, 90, 255]);
+
+  // ── 画布尺寸 / 树的比例 ────────────────────────────────────
+  function resizeCanvas() {
+    DPR = Math.min(window.devicePixelRatio || 1, 1.75);
+    W = Math.max(1, window.innerWidth);
+    H = Math.max(1, window.innerHeight);
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+
+  function layout() {
+    const landscape = W > H * 1.25;
+    if (landscape) {
+      tree.cx = W * 0.67;
+      tree.baseY = H * 0.905;
+      tree.height = Math.min(H * 0.76, W * 0.42);
+      tree.radius = Math.min(tree.height * 0.38, W * 0.16);
+    } else {
+      const short = H < 720;
+      tree.cx = W / 2;
+      tree.baseY = H * (short ? 0.802 : 0.815);
+      tree.height = Math.min(H * (short ? 0.560 : 0.615), W * 1.85);
+      tree.radius = Math.min(W * 0.405, tree.height * 0.40);
+    }
+  }
+
+  function buildBackground() {
+    bgCanvas = document.createElement('canvas');
+    bgCanvas.width = Math.max(1, Math.round(W * DPR));
+    bgCanvas.height = Math.max(1, Math.round(H * DPR));
+    const b = bgCanvas.getContext('2d');
+    b.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    const sky = b.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#04020b');
+    sky.addColorStop(0.42, '#080411');
+    sky.addColorStop(0.68, '#0e0515');
+    sky.addColorStop(0.86, '#160813');
+    sky.addColorStop(1, '#0a030b');
+    b.fillStyle = sky;
+    b.fillRect(0, 0, W, H);
+
+    let g = b.createRadialGradient(tree.cx, H * 0.74, 0, tree.cx, H * 0.74, Math.max(W, H) * 0.62);
+    g.addColorStop(0, 'rgba(255, 86, 140, 0.10)');
+    g.addColorStop(0.45, 'rgba(255, 80, 140, 0.035)');
+    g.addColorStop(1, 'rgba(255, 80, 140, 0)');
+    b.fillStyle = g;
+    b.fillRect(0, 0, W, H);
+
+    g = b.createRadialGradient(W * 0.86, H * 0.12, 0, W * 0.86, H * 0.12, Math.max(W, H) * 0.55);
+    g.addColorStop(0, 'rgba(124, 84, 255, 0.09)');
+    g.addColorStop(1, 'rgba(124, 84, 255, 0)');
+    b.fillStyle = g;
+    b.fillRect(0, 0, W, H);
+
+    g = b.createRadialGradient(W * 0.08, H * 0.90, 0, W * 0.08, H * 0.90, Math.max(W, H) * 0.50);
+    g.addColorStop(0, 'rgba(50, 214, 204, 0.055)');
+    g.addColorStop(1, 'rgba(50, 214, 204, 0)');
+    b.fillStyle = g;
+    b.fillRect(0, 0, W, H);
+  }
+
+  function buildTree() {
+    const density = clamp((W * H) / (390 * 844), 0.62, 1.30);
+    needles = [];
+    garlands = [];
+    ornaments = [];
+    heartOrnaments = [];
+    treeSparkles = [];
+
+    const nNeedles = Math.round(1750 * density);
+    const nGarland = Math.round(320 * density);
+    const nOrnaments = Math.max(30, Math.round(50 * density));
+
+    for (let i = 0; i < nNeedles; i++) {
+      const t = Math.pow(Math.random(), 1.02);
+      const theta = rnd(0, TAU);
+      const profile = Math.pow(1 - t, 0.88);
+      const onShell = Math.random() < 0.70;
+      const rad = profile * (onShell ? rnd(0.88, 1.02) : rnd(0.35, 0.86));
+      let sprite = paletteSprites[Math.round(clamp(t + rnd(-0.13, 0.13), 0, 1) * 27)];
+      const roll = Math.random();
+      if (roll < 0.030) sprite = glow.ice;
+      else if (roll > 0.965) sprite = glow.gold;
+
+      needles.push({
+        t,
+        ct: Math.cos(theta),
+        st: Math.sin(theta),
+        rf: rad,
+        size: rnd(1.5, 3.5) * (1 - 0.16 * t) * (onShell ? 1.05 : 0.88),
+        alpha: rnd(0.28, 0.66) * (onShell ? 1.08 : 0.9),
+        sprite,
+        phase: rnd(0, TAU),
+        speed: rnd(0.7, 1.9)
+      });
+    }
+
+    const strands = 3;
+    for (let i = 0; i < nGarland; i++) {
+      const t = Math.pow(Math.random(), 0.9);
+      const theta = (i % strands) * (TAU / strands) + t * TAU * 5.6 + rnd(-0.09, 0.09);
+      const profile = Math.pow(1 - t, 0.88);
+      const idx = Math.round(clamp(t + rnd(-0.04, 0.09), 0, 1) * 27);
+      const sprite = Math.random() < 0.18 ? glow.white : paletteSprites[idx];
+
+      garlands.push({
+        t,
+        ct: Math.cos(theta),
+        st: Math.sin(theta),
+        rf: profile * (1.005 + rnd(-0.02, 0.045)),
+        size: rnd(1.5, 2.8),
+        alpha: rnd(0.45, 0.90),
+        sprite,
+        phase: rnd(0, TAU),
+        speed: rnd(1.1, 2.4)
+      });
+    }
+
+    const baubles = [glow.gold, glow.pink, glow.gold, glow.white, glow.rose, glow.gold, glow.ice, glow.pink];
+    for (let i = 0; i < nOrnaments; i++) {
+      const t = rnd(0.06, 0.94);
+      const theta = rnd(0, TAU);
+      const profile = Math.pow(1 - t, 0.88);
+      ornaments.push({
+        t,
+        ct: Math.cos(theta),
+        st: Math.sin(theta),
+        rf: profile * 1.015,
+        size: rnd(3.0, 5.6) * (1 - 0.18 * t),
+        alpha: rnd(0.65, 1),
+        sprite: pick(baubles),
+        phase: rnd(0, TAU),
+        speed: rnd(0.8, 2.2)
+      });
+    }
+
+    // 藏在树里的小爱心
+    const nHearts = Math.max(3, Math.round(5 * density));
+    for (let i = 0; i < nHearts; i++) {
+      const t = rnd(0.20, 0.78);
+      const theta = rnd(0, TAU);
+      const profile = Math.pow(1 - t, 0.88);
+      heartOrnaments.push({
+        t,
+        ct: Math.cos(theta),
+        st: Math.sin(theta),
+        rf: profile * 1.045,
+        size: rnd(10, 15) * (1 - 0.12 * t),
+        phase: rnd(0, TAU),
+        speed: rnd(0.7, 1.5)
+      });
+    }
+
+    // 树上的小星芒
+    const nSparkles = Math.max(6, Math.round(11 * density));
+    for (let i = 0; i < nSparkles; i++) {
+      const t = rnd(0.08, 0.91);
+      const theta = rnd(0, TAU);
+      const profile = Math.pow(1 - t, 0.88);
+      treeSparkles.push({
+        t,
+        ct: Math.cos(theta),
+        st: Math.sin(theta),
+        rf: profile * rnd(0.92, 1.03),
+        size: rnd(9, 16),
+        phase: rnd(0, TAU),
+        speed: rnd(0.7, 1.5)
+      });
+    }
+  }
+
+  function spawnAmbientHeart(initial) {
+    return {
+      x: rnd(W * 0.05, W * 0.95),
+      y: initial ? rnd(H * 0.30, H * 1.05) : H + rnd(20, 80),
+      size: rnd(9, 20),
+      vy: rnd(-26, -11),
+      sway: rnd(6, 20),
+      swaySpeed: rnd(0.3, 0.8),
+      phase: rnd(0, TAU),
+      rot: rnd(-0.4, 0.4),
+      vr: rnd(-0.25, 0.25),
+      alpha: rnd(0.07, 0.19)
+    };
+  }
+
+  function buildProps() {
+    stars = [];
+    const nStars = Math.round(95 * Math.min(1.3, clamp((W * H) / (390 * 844), 0.7, 1.4)));
+    for (let i = 0; i < nStars; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.pow(Math.random(), 1.2) * H * 0.72,
+        r: rnd(0.55, 1.9),
+        phase: rnd(0, TAU),
+        speed: rnd(0.6, 1.6),
+        base: rnd(0.18, 0.65),
+        sprite: Math.random() < 0.08 ? glow.ice : (Math.random() < 0.12 ? glow.gold : glow.white)
+      });
+    }
+
+    snow = [];
+    const nSnow = Math.round(clamp((W * H) / 3900, 65, 170));
+    for (let i = 0; i < nSnow; i++) {
+      const big = Math.random() < 0.14;
+      snow.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: big ? rnd(2.6, 5.4) : rnd(0.7, 2.0),
+        vy: big ? rnd(38, 78) : rnd(14, 42),
+        drift: big ? rnd(4, 12) : rnd(6, 22),
+        phase: rnd(0, TAU),
+        driftSpeed: rnd(0.35, 0.9),
+        alpha: big ? rnd(0.045, 0.11) : rnd(0.18, 0.55)
+      });
+    }
+
+    bokeh = [];
+    const nBokeh = Math.round(clamp(W / 14, 18, 34));
+    const bokehSprites = [glow.pink, glow.gold, glow.rose, glow.white, glow.ice];
+    for (let i = 0; i < nBokeh; i++) {
+      bokeh.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: rnd(12, 42),
+        vy: rnd(-16, -4),
+        phase: rnd(0, TAU),
+        sway: rnd(3, 14),
+        swaySpeed: rnd(0.2, 0.7),
+        alpha: rnd(0.05, 0.15),
+        sprite: pick(bokehSprites)
+      });
+    }
+
+    ambientHearts = [];
+    for (let i = 0; i < 5; i++) ambientHearts.push(spawnAmbientHeart(true));
+  }
+
+  // ── 更新 ───────────────────────────────────────────────────
+  function update(dt, time) {
+    tree.rot += dt * 0.10;
+    flash *= Math.exp(-dt * 2.2);
+
+    const wind = Math.sin(time * 0.17) * 6;
+    for (const f of snow) {
+      f.y += f.vy * dt;
+      f.x += (wind + Math.sin(time * f.driftSpeed + f.phase) * f.drift) * dt;
+      if (f.y > H + 30) {
+        f.y = -30;
+        f.x = Math.random() * W;
+      }
+      if (f.x < -40) f.x = W + 40;
+      else if (f.x > W + 40) f.x = -40;
+    }
+
+    for (const b of bokeh) {
+      b.y += b.vy * dt;
+      b.x += Math.sin(time * b.swaySpeed + b.phase) * b.sway * dt;
+      if (b.y < -b.r * 2) {
+        b.y = H + b.r * 2;
+        b.x = Math.random() * W;
+      }
+    }
+
+    for (const h of ambientHearts) {
+      h.y += h.vy * dt;
+      h.x += Math.sin(time * h.swaySpeed + h.phase) * h.sway * dt;
+      h.rot += h.vr * dt;
+      if (h.y < -30) Object.assign(h, spawnAmbientHeart(false));
+    }
+
+    for (let i = burstHearts.length - 1; i >= 0; i--) {
+      const h = burstHearts[i];
+      h.life += dt;
+      if (h.life >= h.dur) {
+        burstHearts.splice(i, 1);
+        continue;
+      }
+      h.vy += 26 * dt;
+      h.vx *= 0.995;
+      h.x += h.vx * dt;
+      h.y += h.vy * dt;
+      h.rot += h.vr * dt;
+    }
+
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i];
+      s.life += dt;
+      if (s.life >= s.dur) {
+        sparks.splice(i, 1);
+        continue;
+      }
+      s.vy += 110 * dt;
+      s.vx *= 0.985;
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+    }
+
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const r = ripples[i];
+      r.life += dt;
+      if (r.life >= r.dur) {
+        ripples.splice(i, 1);
+        continue;
+      }
+      r.r += 230 * dt;
+    }
+
+    if (!meteor && time > meteorNext) {
+      const dir = Math.random() < 0.5 ? 1 : -1;
+      meteor = {
+        x: rnd(W * 0.2, W * 0.85),
+        y: rnd(H * 0.06, H * 0.28),
+        vx: dir * rnd(280, 430),
+        vy: rnd(70, 140),
+        life: 0,
+        dur: rnd(0.9, 1.5)
+      };
+      meteorNext = time + rnd(9, 18);
+    }
+    if (meteor) {
+      meteor.life += dt;
+      if (meteor.life >= meteor.dur) {
+        meteor = null;
+      } else {
+        meteor.x += meteor.vx * dt;
+        meteor.y += meteor.vy * dt;
+      }
+    }
+  }
+
+  // ── 绘制：天空 ─────────────────────────────────────────────
+  function drawAurora(time) {
+    const cw = W * 1.35;
+    const ch = H * 0.50;
+    ctx.globalCompositeOperation = 'lighter';
+
+    ctx.globalAlpha = 0.082 + 0.022 * Math.sin(time * 0.5);
+    ctx.drawImage(
+      auroraRose,
+      W * 0.18 - cw * 0.5 + Math.sin(time * 0.07) * W * 0.04,
+      H * 0.83 - ch * 0.5,
+      cw, ch
+    );
+
+    ctx.globalAlpha = 0.060 + 0.018 * Math.cos(time * 0.43);
+    ctx.drawImage(
+      auroraTeal,
+      W * 0.86 - cw * 0.45 + Math.cos(time * 0.05) * W * 0.03,
+      H * 0.90 - ch * 0.5,
+      cw * 0.90, ch
+    );
+
+    ctx.globalAlpha = 0.045;
+    ctx.drawImage(auroraViolet, W * 0.55 - cw * 0.5, H * 0.55 - ch * 0.5, cw, ch);
+  }
+
+  function drawStars(time) {
+    ctx.globalCompositeOperation = 'lighter';
+    for (const s of stars) {
+      const tw = 0.55 + 0.45 * Math.sin(time * s.speed + s.phase);
+      const a = s.base * tw;
+      if (a <= 0.01) continue;
+      const r = s.r * 3;
+      ctx.globalAlpha = a;
+      ctx.drawImage(s.sprite, s.x - r, s.y - r, r * 2, r * 2);
+    }
+  }
+
+  function drawMoon(time) {
+    const landscape = W > H * 1.25;
+    const size = landscape ? clamp(H * 0.13, 26, 44) : clamp(W * 0.115, 36, 60);
+    const x = landscape ? W * 0.46 : W * 0.135;
+    const y = landscape ? H * 0.30 : H * 0.245;
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.30;
+    const gr = size * 1.9;
+    ctx.drawImage(glow.gold, x - gr, y - gr, gr * 2, gr * 2);
+    ctx.globalAlpha = 0.62 + 0.05 * Math.sin(time * 0.9);
+    ctx.drawImage(crescentSprite, x - size / 2, y - size / 2, size, size);
+  }
+
+  function drawMeteor(time) {
+    if (!meteor) return;
+    const p = meteor.life / meteor.dur;
+    const a = Math.sin(Math.PI * p) * 0.85;
+    const tx = meteor.x - meteor.vx * 0.16;
+    const ty = meteor.y - meteor.vy * 0.16;
+    ctx.globalCompositeOperation = 'lighter';
+
+    const g = ctx.createLinearGradient(meteor.x, meteor.y, tx, ty);
+    g.addColorStop(0, `rgba(255,255,255,${a})`);
+    g.addColorStop(0.30, `rgba(255,220,230,${a * 0.5})`);
+    g.addColorStop(1, 'rgba(255,180,200,0)');
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = g;
+    ctx.lineWidth = 1.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(meteor.x, meteor.y);
+    ctx.stroke();
+
+    const r = 6;
+    ctx.globalAlpha = a;
+    ctx.drawImage(glow.white, meteor.x - r, meteor.y - r, r * 2, r * 2);
+  }
+
+  // ── 绘制：地面光晕 ─────────────────────────────────────────
+  function drawGround(time) {
+    const cx = tree.cx;
+    const R = tree.radius;
+    const base = tree.baseY;
+    ctx.globalCompositeOperation = 'lighter';
+
+    const w = R * 3.4;
+    const h = R * 0.9;
+    ctx.globalAlpha = 0.26;
+    ctx.drawImage(glow.pink, cx - w / 2, base - h * 0.55, w, h);
+
+    const w2 = R * 2.2;
+    const h2 = R * 0.5;
+    ctx.globalAlpha = 0.18;
+    ctx.drawImage(glow.gold, cx - w2 / 2, base - h2 * 0.45, w2, h2);
+
+    const w3 = R * 1.2;
+    ctx.globalAlpha = 0.12;
+    ctx.drawImage(glow.white, cx - w3 / 2, base - R * 0.12, w3, R * 0.4);
+  }
+
+  // ── 绘制：绕树一圈的星光灯串 ───────────────────────────────
+  function drawRibbons(time) {
+    const cx = tree.cx;
+    const R = tree.radius;
+    const Ht = tree.height;
+    const cy = tree.baseY - Ht / 2;
+    const focal = R * 7;
+    const beadSprites = [glow.gold, glow.pink, glow.white, glow.ice, glow.rose];
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    for (let s = 0; s < 2; s++) {
+      const phase = s * Math.PI;
+      for (let j = 0; j < 62; j++) {
+        const t = 0.035 + (j / 61) * 0.92;
+        const ang = phase + t * TAU * 5.4 + tree.rot;
+        const rr = R * Math.pow(1 - t, 0.88) * 1.02;
+        const ca = Math.cos(ang);
+        const sa = Math.sin(ang);
+        const z = sa * rr;
+        const depth = (R - z) / (2 * R);
+        if (depth < 0.51) continue;
+
+        const persp = focal / (focal + z);
+        const sx = cx + ca * rr * persp;
+        const sy = cy + (Ht * 0.5 - t * Ht) * persp;
+        const tw = 0.55 + 0.45 * Math.sin(time * (1.1 + j * 0.03) + j * 1.9 + s * 2.2);
+        const big = j % 4 === 0;
+        const edgeFade = clamp((depth - 0.51) / 0.16, 0, 1);
+        const size = (big ? 3.4 : 2.0) * persp * (0.80 + 0.35 * depth) * (1 + flash * 0.3);
+        const sprite = beadSprites[(j + s * 2) % beadSprites.length];
+
+        ctx.globalAlpha = (0.50 + 0.50 * tw) * (0.55 + 0.45 * depth) * 0.95 * (0.35 + 0.65 * edgeFade);
+        ctx.drawImage(sprite, sx - size, sy - size, size * 2, size * 2);
+      }
+    }
+  }
+
+  // ── 绘制：树身后的柔光 ─────────────────────────────────────
+  function drawTreeAura() {
+    const cx = tree.cx;
+    const R = tree.radius;
+    const Ht = tree.height;
+    ctx.globalCompositeOperation = 'lighter';
+
+    ctx.globalAlpha = 0.16;
+    ctx.drawImage(glow.rose, cx - R * 1.55, tree.baseY - Ht * 0.62, R * 3.1, Ht * 0.78);
+
+    ctx.globalAlpha = 0.11;
+    ctx.drawImage(glow.gold, cx - R * 1.10, tree.baseY - Ht * 0.98, R * 2.2, Ht * 0.72);
+
+    ctx.globalAlpha = 0.10;
+    ctx.drawImage(glow.pink, cx - R * 0.72, tree.baseY - Ht * 1.08, R * 1.44, Ht * 0.58);
+  }
+
+  // ── 绘制：圣诞树 ───────────────────────────────────────────
+  function drawTree(time) {
+    const cx = tree.cx;
+    const R = tree.radius;
+    const Ht = tree.height;
+    const cy = tree.baseY - Ht / 2;
+    const focal = R * 7;
+    const cosR = Math.cos(tree.rot);
+    const sinR = Math.sin(tree.rot);
+    const boost = 1 + flash * 0.8;
+    const waveCycle = time % 8;
+    const waveActive = waveCycle < 3.8;
+    const wavePos = waveCycle / 3.8;
+    ctx.globalCompositeOperation = 'lighter';
+
+    for (const p of needles) {
+      const rr = R * p.rf;
+      const ca = p.ct * cosR - p.st * sinR;
+      const sa = p.st * cosR + p.ct * sinR;
+      const z = sa * rr;
+      const persp = focal / (focal + z);
+      const sx = cx + ca * rr * persp;
+      const sy = cy + (Ht * 0.5 - p.t * Ht) * persp;
+      const depth = (R - z) / (2 * R);
+      const rim = Math.abs(ca);
+      const tw = 0.62 + 0.38 * Math.sin(time * p.speed + p.phase);
+      let wave = 0;
+      if (waveActive) {
+        const d = Math.abs(p.t - wavePos);
+        if (d < 0.085) wave = 1 - d / 0.085;
+      }
+      const alpha = p.alpha * tw * (0.52 + 0.48 * depth) * (0.94 + 0.22 * rim * rim * rim) * (1 + wave * 0.85) * boost;
+      const size = p.size * persp * (0.85 + 0.30 * depth) * (0.96 + 0.12 * rim) * (1 + wave * 0.16);
+      ctx.globalAlpha = alpha > 1 ? 1 : alpha;
+      ctx.drawImage(p.sprite, sx - size, sy - size, size * 2, size * 2);
+    }
+
+    for (const p of garlands) {
+      const rr = R * p.rf;
+      const ca = p.ct * cosR - p.st * sinR;
+      const sa = p.st * cosR + p.ct * sinR;
+      const z = sa * rr;
+      const persp = focal / (focal + z);
+      const sx = cx + ca * rr * persp;
+      const sy = cy + (Ht * 0.5 - p.t * Ht) * persp;
+      const depth = (R - z) / (2 * R);
+      const tw = 0.55 + 0.45 * Math.sin(time * p.speed + p.phase);
+      const alpha = p.alpha * (0.60 + 0.40 * tw) * (0.65 + 0.35 * depth) * boost;
+      const size = p.size * persp * (1 + flash * 0.10);
+      ctx.globalAlpha = alpha > 1 ? 1 : alpha;
+      ctx.drawImage(p.sprite, sx - size, sy - size, size * 2, size * 2);
+    }
+  }
+
+  function drawOrnaments(time) {
+    const cx = tree.cx;
+    const R = tree.radius;
+    const Ht = tree.height;
+    const cy = tree.baseY - Ht / 2;
+    const focal = R * 7;
+    const cosR = Math.cos(tree.rot);
+    const sinR = Math.sin(tree.rot);
+    const boost = 1 + flash * 0.8;
+    ctx.globalCompositeOperation = 'lighter';
+
+    for (const p of ornaments) {
+      const rr = R * p.rf;
+      const ca = p.ct * cosR - p.st * sinR;
+      const sa = p.st * cosR + p.ct * sinR;
+      const z = sa * rr;
+      const persp = focal / (focal + z);
+      const sx = cx + ca * rr * persp;
+      const sy = cy + (Ht * 0.5 - p.t * Ht) * persp;
+      const depth = (R - z) / (2 * R);
+      const tw = 0.55 + 0.45 * Math.sin(time * p.speed * 1.2 + p.phase);
+      const baseA = p.alpha * (0.45 + 0.55 * tw);
+      const size = p.size * persp * (0.90 + 0.25 * depth) * (1 + 0.12 * tw + flash * 0.25);
+
+      ctx.globalAlpha = Math.min(1, baseA * 0.28 * boost);
+      ctx.drawImage(p.sprite, sx - size * 3.2, sy - size * 3.2, size * 6.4, size * 6.4);
+
+      ctx.globalAlpha = Math.min(1, baseA * boost);
+      ctx.drawImage(p.sprite, sx - size, sy - size, size * 2, size * 2);
+
+      ctx.globalAlpha = Math.min(1, baseA * 0.9);
+      const w = size * 0.9;
+      ctx.drawImage(glow.white, sx - w / 2, sy - w / 2, w, w);
+
+      const ry = tree.baseY + (tree.baseY - sy) * 0.55 + 4;
+      ctx.globalAlpha = baseA * 0.12;
+      const rs = size * 1.6;
+      ctx.drawImage(p.sprite, sx - rs, ry - rs, rs * 2, rs * 2);
+    }
+  }
+
+  function drawHeartOrnaments(time) {
+    const cx = tree.cx;
+    const R = tree.radius;
+    const Ht = tree.height;
+    const cy = tree.baseY - Ht / 2;
+    const focal = R * 7;
+    const cosR = Math.cos(tree.rot);
+    const sinR = Math.sin(tree.rot);
+
+    for (const p of heartOrnaments) {
+      const rr = R * p.rf;
+      const ca = p.ct * cosR - p.st * sinR;
+      const sa = p.st * cosR + p.ct * sinR;
+      const z = sa * rr;
+      const persp = focal / (focal + z);
+      const sx = cx + ca * rr * persp;
+      const sy = cy + (Ht * 0.5 - p.t * Ht) * persp;
+      const depth = (R - z) / (2 * R);
+      const pulse = 0.8 + 0.2 * Math.sin(time * p.speed * 1.4 + p.phase);
+      const size = p.size * persp * (0.82 + 0.30 * depth) * pulse;
+
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = 0.20 * (0.45 + 0.55 * depth);
+      const hs = size * 2.4;
+      ctx.drawImage(glow.pink, sx - hs, sy - hs, hs * 2, hs * 2);
+
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = (0.62 + 0.38 * depth) * (0.82 + 0.18 * pulse);
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(Math.sin(time * 0.5 + p.phase) * 0.08);
+      ctx.drawImage(heartSprite, -size / 2, -size / 2, size, size);
+      ctx.restore();
+    }
+  }
+
+  function drawTreeSparkles(time) {
+    const cx = tree.cx;
+    const R = tree.radius;
+    const Ht = tree.height;
+    const cy = tree.baseY - Ht / 2;
+    const focal = R * 7;
+    const cosR = Math.cos(tree.rot);
+    const sinR = Math.sin(tree.rot);
+    ctx.globalCompositeOperation = 'lighter';
+
+    for (const p of treeSparkles) {
+      const rr = R * p.rf;
+      const ca = p.ct * cosR - p.st * sinR;
+      const sa = p.st * cosR + p.ct * sinR;
+      const z = sa * rr;
+      const persp = focal / (focal + z);
+      const sx = cx + ca * rr * persp;
+      const sy = cy + (Ht * 0.5 - p.t * Ht) * persp;
+      const depth = (R - z) / (2 * R);
+      const tw = Math.pow(0.5 + 0.5 * Math.sin(time * p.speed * 1.6 + p.phase), 2);
+      const size = p.size * persp * (0.8 + 0.35 * depth) * (0.7 + 0.45 * tw) * (1 + flash * 0.25);
+
+      ctx.globalAlpha = (0.30 + 0.55 * tw) * (0.55 + 0.45 * depth);
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(time * 0.22 + p.phase);
+      ctx.drawImage(sparkleSprite, -size / 2, -size / 2, size, size);
+      ctx.restore();
+    }
+  }
+
+  function drawRay(x, y, len, w, angle, alpha, time) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle + Math.sin(time * 0.5) * 0.02);
+    const g = ctx.createLinearGradient(-len, 0, len, 0);
+    g.addColorStop(0, 'rgba(255,215,170,0)');
+    g.addColorStop(0.18, `rgba(255,214,164,${0.10 * alpha})`);
+    g.addColorStop(0.5, `rgba(255,253,244,${0.95 * alpha})`);
+    g.addColorStop(0.82, `rgba(255,214,164,${0.10 * alpha})`);
+    g.addColorStop(1, 'rgba(255,215,170,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(-len, 0);
+    ctx.quadraticCurveTo(0, -w, len, 0);
+    ctx.quadraticCurveTo(0, w, -len, 0);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawStar(time) {
+    const x = tree.cx;
+    const y = tree.baseY - tree.height - clamp(tree.radius * 0.04, 4, 10);
+    const R = tree.radius;
+    const pulse = 1 + 0.055 * Math.sin(time * 1.9) + flash * 0.12;
+    const baseA = 0.85 + flash * 0.15;
+    ctx.globalCompositeOperation = 'lighter';
+
+    ctx.globalAlpha = 0.34 * baseA;
+    const a1 = R * 1.02 * pulse;
+    ctx.drawImage(glow.gold, x - a1, y - a1, a1 * 2, a1 * 2);
+
+    ctx.globalAlpha = 0.23 * baseA;
+    const a2 = R * 0.64;
+    ctx.drawImage(glow.pink, x - a2, y - a2, a2 * 2, a2 * 2);
+
+    ctx.globalAlpha = 0.85;
+    drawRay(x, y, R * 0.38 * pulse, 2.2, -Math.PI / 2, 1.0, time);
+    drawRay(x, y, R * 0.34 * pulse, 1.5, 0, 0.74, time);
+    drawRay(x, y, R * 0.20 * pulse, 1.1, Math.PI / 4, 0.46, time);
+    drawRay(x, y, R * 0.20 * pulse, 1.1, -Math.PI / 4, 0.46, time);
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.sin(time * 0.4) * 0.06);
+    const r1 = clamp(R * 0.095, 11, 21) * pulse;
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const rr = i % 2 === 0 ? r1 : r1 * 0.44;
+      const ang = -Math.PI / 2 + i * Math.PI / 5;
+      const px = Math.cos(ang) * rr;
+      const py = Math.sin(ang) * rr;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    const sg = ctx.createRadialGradient(0, 0, 0, 0, 0, r1);
+    sg.addColorStop(0, 'rgba(255,255,255,1)');
+    sg.addColorStop(0.55, 'rgba(255,243,212,0.98)');
+    sg.addColorStop(1, 'rgba(255,190,130,0.35)');
+    ctx.fillStyle = sg;
+    ctx.globalAlpha = 0.95;
+    ctx.fill();
+
+    ctx.globalAlpha = 0.9;
+    const w = r1 * 1.8;
+    ctx.drawImage(glow.white, -w / 2, -w / 2, w, w);
+    ctx.restore();
+
+    for (let i = 0; i < 3; i++) {
+      const ang = time * 0.55 + i * TAU / 3;
+      const dist = r1 * 2.1 + Math.sin(time * 1.3 + i) * 4;
+      const px = x + Math.cos(ang) * dist;
+      const py = y + Math.sin(ang) * dist * 0.7;
+      const s = 3.2 + 1.4 * Math.sin(time * 2 + i);
+      ctx.globalAlpha = 0.45;
+      ctx.drawImage(glow.white, px - s, py - s, s * 2, s * 2);
+    }
+  }
+
+  function drawBokeh(time) {
+    ctx.globalCompositeOperation = 'lighter';
+    for (const b of bokeh) {
+      const tw = 0.5 + 0.5 * Math.sin(time * 0.7 + b.phase);
+      ctx.globalAlpha = b.alpha * (0.6 + 0.4 * tw);
+      ctx.drawImage(b.sprite, b.x - b.r, b.y - b.r, b.r * 2, b.r * 2);
+    }
+  }
+
+  function drawSnow(time) {
+    ctx.globalCompositeOperation = 'lighter';
+    for (const f of snow) {
+      const r = f.r * 2.6;
+      const tw = 0.75 + 0.25 * Math.sin(time * 1.2 + f.phase);
+      ctx.globalAlpha = f.alpha * tw;
+      ctx.drawImage(glow.white, f.x - r, f.y - r, r * 2, r * 2);
+    }
+  }
+
+  function drawHeartSprite(x, y, size, rot, alpha) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(heartSprite, -size / 2, -size / 2, size, size);
+    ctx.restore();
+  }
+
+  function drawAmbientHearts(time) {
+    ctx.globalCompositeOperation = 'source-over';
+    for (const h of ambientHearts) {
+      const sway = Math.sin(time * h.swaySpeed + h.phase) * 0.08;
+      drawHeartSprite(h.x, h.y, h.size, h.rot + sway, h.alpha);
+    }
+  }
+
+  function drawBursts() {
+    ctx.globalCompositeOperation = 'source-over';
+    for (const h of burstHearts) {
+      const p = h.life / h.dur;
+      const a = h.alpha * Math.pow(1 - p, 1.6);
+      const size = h.size * (0.9 + 0.4 * p);
+      drawHeartSprite(h.x, h.y, size, h.rot, a);
+    }
+  }
+
+  function drawSparks() {
+    ctx.globalCompositeOperation = 'lighter';
+    for (const s of sparks) {
+      const p = s.life / s.dur;
+      ctx.globalAlpha = Math.pow(1 - p, 2) * 0.95;
+      const size = s.size * (1 - 0.25 * p);
+      ctx.drawImage(s.sprite, s.x - size, s.y - size, size * 2, size * 2);
+    }
+  }
+
+  function drawRipples() {
+    ctx.globalCompositeOperation = 'lighter';
+    for (const r of ripples) {
+      const p = r.life / r.dur;
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = `rgba(255,214,224,${(1 - p) * 0.35})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(r.x, r.y, r.r, 0, TAU);
+      ctx.stroke();
+    }
+  }
+
+  function render(time) {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    ctx.drawImage(bgCanvas, 0, 0, W, H);
+
+    drawAurora(time);
+    drawStars(time);
+    drawMoon(time);
+    drawMeteor(time);
+    drawGround(time);
+    drawTreeAura();
+    drawTree(time);
+    drawRibbons(time);
+    drawOrnaments(time);
+    drawTreeSparkles(time);
+    drawHeartOrnaments(time);
+    drawStar(time);
+    drawBokeh(time);
+    drawSnow(time);
+    drawAmbientHearts(time);
+    drawBursts();
+    drawSparks();
+    drawRipples();
+  }
+
+  // ── 互动：星光、雪花、爱心、铃声 ───────────────────────────
+  let audioCtx = null;
+  let noteIndex = 0;
+  const SCALE = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66];
+
+  function getAudio() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      audioCtx = new AC();
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function bell(freq, when, dur, vol) {
+    const ac = audioCtx;
+    if (!ac) return;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, when);
+    gain.gain.setValueAtTime(0.0001, when);
+    gain.gain.exponentialRampToValueAtTime(vol, when + 0.014);
+    gain.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+    osc.connect(gain);
+    gain.connect(ac.destination);
+    osc.start(when);
+    osc.stop(when + dur + 0.05);
+
+    const osc2 = ac.createOscillator();
+    const gain2 = ac.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(freq * 2.01, when);
+    gain2.gain.setValueAtTime(0.0001, when);
+    gain2.gain.exponentialRampToValueAtTime(vol * 0.22, when + 0.01);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, when + dur * 0.55);
+    osc2.connect(gain2);
+    gain2.connect(ac.destination);
+    osc2.start(when);
+    osc2.stop(when + dur * 0.55 + 0.05);
+  }
+
+  function playChime(first) {
+    if (!soundOn) return;
+    const ac = getAudio();
+    if (!ac) return;
+    const now = ac.currentTime + 0.02;
+
+    if (first) {
+      [0, 4, 7, 12].forEach((semi, k) => {
+        const f = 523.25 * Math.pow(2, semi / 12);
+        bell(f, now + k * 0.11, 2.4, 0.05);
+      });
+    } else {
+      const f = SCALE[(noteIndex++) % SCALE.length] * (Math.random() < 0.35 ? 2 : 1);
+      bell(f, now, 2.0, 0.045);
+    }
+  }
+
+  function createBurst(x, y) {
+    flash = Math.min(1.5, flash + 0.85);
+    if (navigator.vibrate) {
+      try { navigator.vibrate(8); } catch (err) { /* ignore */ }
+    }
+
+    const count = W < 480 ? 7 : 10;
+    for (let i = 0; i < count; i++) {
+      burstHearts.push({
+        x: x + rnd(-12, 12),
+        y: y + rnd(-8, 8),
+        vx: rnd(-90, 90),
+        vy: rnd(-210, -80),
+        size: rnd(13, 26),
+        rot: rnd(-0.5, 0.5),
+        vr: rnd(-1.6, 1.6),
+        life: 0,
+        dur: rnd(1.9, 3.0),
+        alpha: rnd(0.65, 1)
+      });
+    }
+
+    const sparkSprites = [glow.pink, glow.gold, glow.white, glow.ice, glow.rose];
+    for (let i = 0; i < 30; i++) {
+      const ang = rnd(0, TAU);
+      const sp = rnd(30, 230);
+      sparks.push({
+        x,
+        y,
+        vx: Math.cos(ang) * sp,
+        vy: Math.sin(ang) * sp - rnd(20, 70),
+        size: rnd(1.4, 4.6),
+        life: 0,
+        dur: rnd(0.6, 1.3),
+        sprite: pick(sparkSprites)
+      });
+    }
+
+    ripples.push({ x, y, r: 8, life: 0, dur: 1.1 });
+
+    if (isFirstTap) {
+      isFirstTap = false;
+      hintText.textContent = '你的愿望 · 星星都听见了';
+      playChime(true);
+    } else {
+      playChime(false);
+    }
+  }
+
+  function onPointerDown(e) {
+    if (e.target && e.target.closest && e.target.closest('#sound')) return;
+    createBurst(e.clientX, e.clientY);
+  }
+
+  soundBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+
+  soundBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    soundOn = !soundOn;
+    soundBtn.classList.toggle('is-muted', !soundOn);
+    soundBtn.setAttribute('aria-pressed', String(soundOn));
+    soundBtn.setAttribute('aria-label', soundOn ? '关闭声音' : '开启声音');
+    if (soundOn) {
+      noteIndex = 0;
+      playChime(false);
+    }
+  });
+
+  // ── 初始化 & 循环 ──────────────────────────────────────────
+  function initAll() {
+    resizeCanvas();
+    layout();
+    buildBackground();
+    buildTree();
+    buildProps();
+    burstHearts.length = 0;
+    sparks.length = 0;
+    ripples.length = 0;
+  }
+
+  let last = performance.now();
+
+  function loop(now) {
+    const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
+    last = now;
+    elapsed += dt;
+    update(dt, elapsed);
+    render(elapsed);
+    requestAnimationFrame(loop);
+  }
+
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(initAll, 160);
+  });
+  window.addEventListener('orientationchange', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(initAll, 280);
+  });
+
+  window.addEventListener('pointerdown', onPointerDown, { passive: true });
+
+  initAll();
+  requestAnimationFrame((now) => {
+    last = now;
+    requestAnimationFrame(loop);
+  });
+})();
+</script>
+
+<noscript>
+  <div class="noscript">请用手机浏览器打开<br />这棵圣诞树才会为你亮起 ✦</div>
+</noscript>
+
+</body>
+</html>
